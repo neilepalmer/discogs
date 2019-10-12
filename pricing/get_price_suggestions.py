@@ -1,8 +1,9 @@
 import csv
+import jq
 import requests
 
 url = 'https://www.googleapis.com/qpxExpress/v1/trips/search?key=mykeyhere'
-with open('neilepalmer-collection-20190930-1715.csv') as csv_file:
+with open('neilepalmer-collection-20191011-1851.csv') as csv_file:
     csv_reader = csv.DictReader(csv_file)
     line_count = 0
     for row in csv_reader:
@@ -11,7 +12,11 @@ with open('neilepalmer-collection-20190930-1715.csv') as csv_file:
             print(f'Column names are {", ".join(row)}')
             line_count += 1
 
-        print(f'\t{row["Artist"]} {row["Title"]} Media : {row["Collection Media Condition"]}. Media : {row["Collection Sleeve Condition"]} ')
+        if (row["CollectionFolder"] == "Flood Damage"):
+            if (row["Collection Media Condition"] == "") or (row["Collection Sleeve Condition"] == ""):
+                print(f'\t{row["Artist"]} {row["Title"]} Media : {row["Collection Media Condition"]}. Sleeve : {row["Collection Sleeve Condition"]} ')
+
+            # print(f'\t{row["Artist"]} {row["Title"]} Media : {row["Collection Media Condition"]}. Sleeve : {row["Collection Sleeve Condition"]} ')
 
         # payload = open("request.json")
         # headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
