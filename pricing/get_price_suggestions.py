@@ -9,7 +9,7 @@ headers = {'content-type': 'application/json', 'Accept-Charset': 'UTF-8', 'user-
 
 field_names = {"Catalog#", "Artist", "Title", "Label", "Format", "Rating", "Released", "release_id",
                 "CollectionFolder", "Date Added", "Collection Media Condition", "Collection Sleeve Condition",
-                "Collection Notes", "Collection Location", "Price"}
+                "Collection Notes", "Collection Location", "Expected Replacement Price"}
 
 parser = argparse.ArgumentParser(description='Expecting collection filename and Discogs token')
 parser.add_argument("--file", required=True, type=str, help="Filename of the inventory export from Discogs to parse")
@@ -20,11 +20,12 @@ filename = args.file
 token = args.token
 headers.update({'Authorization': 'Discogs token=' + token})
 
-with open(filename) as csv_file, open('results.csv', 'w', newline='') as results_file:
+with open(filename) as csv_file, open('results.csv', 'w') as results_file:
 
     # Read collection file
     csv_reader = csv.DictReader(csv_file)
     csv_writer = csv.DictWriter(results_file, field_names)
+    csv_writer.writeheader()
 
     line_count = 0
     for row in csv_reader:
@@ -63,10 +64,6 @@ with open(filename) as csv_file, open('results.csv', 'w', newline='') as results
             print('Sleep sleep sleeping')
             sleep(10)
 
-        # Add some parsing based on condition (media? sleeve? both?)
-        # print(r.json())
-
-        # print(row["Collection Media Condition"])
         result = r.json().get(row["Collection Media Condition"])
         if result is None:
             print(f'\t{row["Artist"]} {row["Title"]} Media : {row["Collection Media Condition"]}. Price : UNKNOWN')
@@ -76,11 +73,9 @@ with open(filename) as csv_file, open('results.csv', 'w', newline='') as results
         else:
             print(f"Non USD Currency! {result}")
 
-        row["Price"] = round(price, 2)
+        row["Expected Replacement Price"] = round(price, 2)
         print(row)
         csv_writer.writerow(row)
-
-        # print(f'\t{row["Artist"]} {row["Title"]} Media : {row["Collection Media Condition"]}. Price : {round(price, 2)}')
 
         # Rewrite output
         line_count += 1
